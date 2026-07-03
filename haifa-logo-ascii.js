@@ -1,5 +1,5 @@
 const RAMP = " .,:;irsXA253hMHGS#9B&@";
-const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=13", import.meta.url);
+const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=14", import.meta.url);
 
 const template = document.createElement("template");
 template.innerHTML = `
@@ -15,7 +15,7 @@ template.innerHTML = `
       background: var(--haifa-ascii-background, #07111f);
       border-radius: var(--haifa-ascii-radius, 0.75rem);
       contain: content;
-      perspective: 850px;
+      perspective: 1200px;
     }
 
     .scene {
@@ -75,13 +75,11 @@ template.innerHTML = `
     }
   </style>
   <div class="scene">
-    <canvas aria-hidden="true" style="--layer-z: -42px; --layer-opacity: 0.28"></canvas>
-    <canvas aria-hidden="true" style="--layer-z: -28px; --layer-opacity: 0.36"></canvas>
-    <canvas aria-hidden="true" style="--layer-z: -14px; --layer-opacity: 0.48"></canvas>
+    <canvas aria-hidden="true" style="--layer-z: -16px; --layer-opacity: 0.14"></canvas>
+    <canvas aria-hidden="true" style="--layer-z: -8px; --layer-opacity: 0.22"></canvas>
     <canvas part="canvas" role="img" style="--layer-z: 0px; --layer-opacity: 1"></canvas>
-    <canvas aria-hidden="true" style="--layer-z: 14px; --layer-opacity: 0.52"></canvas>
-    <canvas aria-hidden="true" style="--layer-z: 28px; --layer-opacity: 0.4"></canvas>
-    <canvas aria-hidden="true" style="--layer-z: 42px; --layer-opacity: 0.3"></canvas>
+    <canvas aria-hidden="true" style="--layer-z: 8px; --layer-opacity: 0.22"></canvas>
+    <canvas aria-hidden="true" style="--layer-z: 16px; --layer-opacity: 0.14"></canvas>
   </div>
   <div class="message" hidden></div>
 `;
@@ -283,7 +281,8 @@ class HaifaLogoAscii extends HTMLElement {
 
     for (let layer = 0; layer < this.contexts.length; layer += 1) {
       const ctx = this.contexts[layer];
-      const depthShade = 1 - Math.abs(layer - 3) * 0.1;
+      const centerLayer = (this.contexts.length - 1) / 2;
+      const depthShade = 1 - Math.abs(layer - centerLayer) * 0.08;
       ctx.clearRect(0, 0, width, height);
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
