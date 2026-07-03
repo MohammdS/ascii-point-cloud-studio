@@ -1,5 +1,7 @@
 const RAMP = " .,:;irsXA253hMHGS#9B&@";
-const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=17", import.meta.url);
+const COLUMNS = 132;
+const ROWS = 48;
+const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=21", import.meta.url);
 
 const template = document.createElement("template");
 template.innerHTML = `
@@ -17,10 +19,18 @@ template.innerHTML = `
       contain: content;
     }
 
-    canvas {
-      display: block;
+    pre {
+      box-sizing: border-box;
+      display: grid;
       width: 100%;
       height: 100%;
+      margin: 0;
+      place-content: center;
+      overflow: hidden;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-variant-ligatures: none;
+      letter-spacing: 0;
+      white-space: pre;
     }
 
     .message {
@@ -35,17 +45,32 @@ template.innerHTML = `
       text-align: center;
     }
   </style>
-  <canvas part="canvas" role="img"></canvas>
+  <pre part="screen" role="img"></pre>
   <div class="message" hidden></div>
 `;
 
 const pointSets = new Map();
 
 function expandPoints(points) {
+  const quantized = new Set(points.map(([x, y]) => `${Math.round(x / 0.16)},${Math.round(y / 0.16)}`));
   const result = [];
-  for (const [x, y, r, g, b] of points) {
+  for (const [index, point] of points.entries()) {
+    const [x, y, r, g, b] = point;
+    const qx = Math.round(x / 0.16);
+    const qy = Math.round(y / 0.16);
     const surface = 0.26 * Math.sin(x * 1.15) + 0.12 * Math.cos(y * 2);
-    for (const depth of [-1.0, -0.5, 0, 0.5, 1.0]) {
+
+    result.push([x, y, surface + 1.05, r, g, b]);
+    if (index % 2 === 0) result.push([x, y, surface - 1.05, r, g, b]);
+
+    const isRim =
+      !quantized.has(`${qx - 1},${qy}`) ||
+      !quantized.has(`${qx + 1},${qy}`) ||
+      !quantized.has(`${qx},${qy - 1}`) ||
+      !quantized.has(`${qx},${qy + 1}`);
+
+    if (!isRim) continue;
+    for (const depth of [-0.7, -0.35, 0, 0.35, 0.7]) {
       result.push([x, y, surface + depth, r, g, b]);
     }
   }
@@ -65,18 +90,27 @@ function loadPoints(url) {
   return pointSets.get(url.href);
 }
 
+function escapeHtml(value) {
+  if (value === "&") return "&amp;";
+  if (value === "<") return "&lt;";
+  if (value === ">") return "&gt;";
+  return value;
+}
+
+function colorToHex(color) {
+  return `#${color.toString(16).padStart(6, "0")}`;
+}
+
 class HaifaLogoAscii extends HTMLElement {
   static observedAttributes = ["label", "paused", "speed", "fps", "motion", "src"];
 
   constructor() {
     super();
     this.attachShadow({ mode: "open" }).append(template.content.cloneNode(true));
-    this.canvas = this.shadowRoot.querySelector("canvas");
+    this.screen = this.shadowRoot.querySelector("pre");
     this.message = this.shadowRoot.querySelector(".message");
-    this.context = this.canvas.getContext("2d", { alpha: false });
     this.points = null;
     this.frameIndex = 0;
-    this.animationFrame = 0;
     this.animationTimer = 0;
     this.reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
   }
@@ -90,7 +124,6 @@ class HaifaLogoAscii extends HTMLElement {
   }
 
   disconnectedCallback() {
-    cancelAnimationFrame(this.animationFrame);
     clearInterval(this.animationTimer);
     this.resizeObserver?.disconnect();
     this.reduceMotion.removeEventListener?.("change", this.onMotionChange);
@@ -119,7 +152,7 @@ class HaifaLogoAscii extends HTMLElement {
     const requestId = Symbol();
     this.activeRequest = requestId;
     this.points = null;
-    this.canvas.hidden = false;
+    this.screen.hidden = false;
     this.message.hidden = true;
 
     loadPoints(url)
@@ -136,17 +169,16 @@ class HaifaLogoAscii extends HTMLElement {
   }
 
   startAnimation() {
-    cancelAnimationFrame(this.animationFrame);
     clearInterval(this.animationTimer);
     this.draw();
     if (this.hasAttribute("paused") || this.motionReduced) return;
 
-    const fps = Math.max(1, Math.min(60, Number(this.getAttribute("fps")) || 24));
+    const fps = Math.max(1, Math.min(30, Number(this.getAttribute("fps")) || 18));
     this.animationTimer = setInterval(() => this.draw(), 1000 / fps);
   }
 
   updateLabel() {
-    this.canvas.setAttribute(
+    this.screen.setAttribute(
       "aria-label",
       this.getAttribute("label") || "Animated 3D ASCII art of the University of Haifa logo",
     );
@@ -154,44 +186,37 @@ class HaifaLogoAscii extends HTMLElement {
 
   resize() {
     const rect = this.getBoundingClientRect();
-    const ratio = Math.min(devicePixelRatio || 1, 2);
-    const width = Math.max(1, Math.round(rect.width * ratio));
-    const height = Math.max(1, Math.round(rect.height * ratio));
-    if (this.canvas.width !== width || this.canvas.height !== height) {
-      this.canvas.width = width;
-      this.canvas.height = height;
-      this.draw();
-    }
+    if (!rect.width || !rect.height) return;
+
+    const fontSize = Math.max(6, Math.min(rect.width / (COLUMNS * 0.62), rect.height / ROWS));
+    this.screen.style.fontSize = `${fontSize}px`;
+    this.screen.style.lineHeight = `${rect.height / ROWS}px`;
+    if (this.points) this.draw();
   }
 
   draw() {
-    if (!this.points || !this.canvas.width || !this.canvas.height) return;
+    if (!this.points) return;
 
-    const ctx = this.context;
-    const width = this.canvas.width;
-    const height = this.canvas.height;
-    const columns = Math.max(60, Math.min(132, Math.floor(width / 10)));
-    const rows = Math.max(24, Math.min(48, Math.floor(height / 14)));
-    const cellWidth = width / columns;
-    const cellHeight = height / rows;
-    const count = columns * rows;
+    const count = COLUMNS * ROWS;
     const chars = new Uint8Array(count);
     const colors = new Uint32Array(count);
     const zBuffer = new Float32Array(count);
     zBuffer.fill(-1e9);
 
-    const speed = Number(this.getAttribute("speed"));
+    const speedAttribute = this.getAttribute("speed");
+    const speed = speedAttribute === null ? 1 : Number(speedAttribute);
     const rotationSpeed = Number.isFinite(speed) ? speed : 1;
     const direction = rotationSpeed < 0 ? -1 : 1;
     if (!this.hasAttribute("paused") && !this.motionReduced) this.frameIndex += direction;
     const angleY = this.frameIndex * 0.075 * Math.abs(rotationSpeed);
     this.dataset.frame = String(this.frameIndex);
+
     const angleX = -0.18;
     const cosX = Math.cos(angleX);
     const sinX = Math.sin(angleX);
     const cosY = Math.cos(angleY);
     const sinY = Math.sin(angleY);
-    const scale = Math.min(columns / 10.8, rows / 5.6);
+    const scale = Math.min(COLUMNS / 10.8, ROWS / 5.6);
 
     for (const [x, y, z, r, g, b] of this.points) {
       const y1 = y * cosX - z * sinX;
@@ -199,11 +224,11 @@ class HaifaLogoAscii extends HTMLElement {
       const x2 = x * cosY + z1 * sinY;
       const z2 = -x * sinY + z1 * cosY;
       const perspective = 1 / (1 + Math.max(-0.65, Math.min(0.85, z2 * 0.08)));
-      const sx = Math.trunc(columns / 2 + x2 * scale * 1.18 * perspective);
-      const sy = Math.trunc(rows / 2 - y1 * scale * 0.92 * perspective);
-      if (sx < 0 || sx >= columns || sy < 0 || sy >= rows) continue;
+      const sx = Math.trunc(COLUMNS / 2 + x2 * scale * 1.18 * perspective);
+      const sy = Math.trunc(ROWS / 2 - y1 * scale * 0.92 * perspective);
+      if (sx < 0 || sx >= COLUMNS || sy < 0 || sy >= ROWS) continue;
 
-      const index = sy * columns + sx;
+      const index = sy * COLUMNS + sx;
       if (z2 <= zBuffer[index]) continue;
       zBuffer[index] = z2;
 
@@ -218,24 +243,26 @@ class HaifaLogoAscii extends HTMLElement {
       colors[index] = (rr << 16) | (gg << 8) | bb;
     }
 
-    ctx.fillStyle = getComputedStyle(this).getPropertyValue("--haifa-ascii-background").trim() || "#07111f";
-    ctx.fillRect(0, 0, width, height);
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.font = `${Math.max(8, cellHeight * 0.88)}px ui-monospace, SFMono-Regular, Consolas, monospace`;
-
-    for (let index = 0; index < count; index += 1) {
-      if (!chars[index]) continue;
-      const color = colors[index];
-      ctx.fillStyle = `rgb(${color >> 16}, ${(color >> 8) & 255}, ${color & 255})`;
-      const x = (index % columns + 0.5) * cellWidth;
-      const y = (Math.floor(index / columns) + 0.5) * cellHeight;
-      ctx.fillText(RAMP[chars[index]], x, y);
+    const rows = [];
+    for (let row = 0; row < ROWS; row += 1) {
+      let line = "";
+      for (let column = 0; column < COLUMNS; column += 1) {
+        const index = row * COLUMNS + column;
+        const charIndex = chars[index];
+        if (!charIndex) {
+          line += " ";
+          continue;
+        }
+        line += `<span style="color:${colorToHex(colors[index])}">${escapeHtml(RAMP[charIndex])}</span>`;
+      }
+      rows.push(line);
     }
+
+    this.screen.innerHTML = rows.join("\n");
   }
 
   showError(error) {
-    this.canvas.hidden = true;
+    this.screen.hidden = true;
     this.message.hidden = false;
     this.message.textContent = "The Haifa logo artwork could not be loaded.";
     console.error(error);
