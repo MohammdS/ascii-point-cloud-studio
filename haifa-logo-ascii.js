@@ -1,18 +1,19 @@
 const RAMP = " .,:;irsXA253hMHGS#9B&@";
 const COLUMNS = 132;
 const ROWS = 48;
-const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=21", import.meta.url);
+const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=22", import.meta.url);
 
 const template = document.createElement("template");
 template.innerHTML = `
   <style>
     :host {
-      display: block;
+      display: grid;
       width: 100%;
       max-width: 100%;
       min-width: 0;
       aspect-ratio: 3 / 1;
       min-height: 180px;
+      place-items: center;
       overflow: hidden;
       background: var(--haifa-ascii-background, #07111f);
       border-radius: var(--haifa-ascii-radius, 0.75rem);
@@ -21,11 +22,10 @@ template.innerHTML = `
 
     pre {
       box-sizing: border-box;
-      display: grid;
-      width: 100%;
-      height: 100%;
+      display: block;
+      width: max-content;
+      height: auto;
       margin: 0;
-      place-content: center;
       overflow: hidden;
       font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
       font-variant-ligatures: none;
