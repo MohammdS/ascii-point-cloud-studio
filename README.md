@@ -33,9 +33,13 @@ http://127.0.0.1:8000/index.html
 
 This is the main preview page. It shows the two animated ASCII logo previews and links to the point-cloud editor.
 
+![Animated logo previews](./assets/logo-preview.gif)
+
 `point-cloud-editor.html`
 
 This is the editor/viewer page. I use it to load a logo point-cloud JSON file, view the raw points, view an ASCII-style render, add points, remove points, undo/redo edits, reset, and export the edited JSON.
+
+![Point-cloud editor](./assets/cloud-points-editor.png)
 
 ## What Each File Does
 
