@@ -1,7 +1,7 @@
 const RAMP = " .,:;irsXA253hMHGS#9B&@";
 const COLUMNS = 132;
 const ROWS = 48;
-const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=24", import.meta.url);
+const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=25", import.meta.url);
 
 const template = document.createElement("template");
 template.innerHTML = `
@@ -208,7 +208,7 @@ class HaifaLogoAscii extends HTMLElement {
     const rotationSpeed = Number.isFinite(speed) ? speed : 1;
     const direction = rotationSpeed < 0 ? -1 : 1;
     if (!this.hasAttribute("paused") && !this.motionReduced) this.frameIndex += direction;
-    const angleY = this.frameIndex * 0.075 * Math.abs(rotationSpeed);
+    const angleY = this.frameIndex * 0.052 * Math.abs(rotationSpeed);
     this.dataset.frame = String(this.frameIndex);
 
     const cosY = Math.cos(angleY);
