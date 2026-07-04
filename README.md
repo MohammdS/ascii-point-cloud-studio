@@ -43,6 +43,36 @@ This is the editor/viewer page. I use it to load a logo point-cloud JSON file, v
 
 ![Point-cloud editor](./assets/cloud-points-editor.png)
 
+## How I Use The Point-Cloud Editor
+
+The point-cloud editor is a browser tool for editing the JSON data files that already live in the repo folder.
+
+When I open `point-cloud-editor.html`, the **Logo** dropdown loads one of the existing point-cloud files:
+
+- `haifa-logo-points.json` for the University of Haifa - old logo
+- `second-logo-points.json` for the University of Haifa - new logo
+
+The editor loads those files with `fetch()`, draws the points on the canvas, and lets me inspect the logo as either raw cloud points or an ASCII-style render.
+
+The main controls are:
+
+- **Logo**: switches between the old logo JSON and the new logo JSON.
+- **Load JSON**: lets me inspect a local JSON file from my computer.
+- **View**: switches between point-cloud view and ASCII render view.
+- **Tool**: chooses whether I am adding points or removing points.
+- **Point color**: sets the RGB color for new points.
+- **Brush size**: controls how many points I add or remove at once.
+- **Undo / Redo**: steps backward or forward through edits.
+- **Reset**: returns to the currently loaded JSON data.
+- **Export JSON**: downloads the edited point-cloud data as a new `.json` file.
+
+The editor does not automatically overwrite files in the repository. After exporting, I manually replace the matching JSON file in the repo folder with the downloaded file:
+
+- replace `haifa-logo-points.json` if I edited the old logo
+- replace `second-logo-points.json` if I edited the new logo
+
+After replacing the file, I can refresh `index.html` through the local server to preview the updated ASCII logo.
+
 ## What Each File Does
 
 `haifa-logo-ascii.js`
