@@ -15,6 +15,8 @@ This project should be opened through a local server, not by double-clicking `in
 
 The reason is that the page loads JavaScript modules and JSON files with `fetch()`. Browsers often block those requests when the page is opened directly from `file://`.
 
+Python is only used here to start a simple static file server. The rendering, animation, editor, and math logic are all implemented in HTML and JavaScript and run inside the browser.
+
 From the project folder, run:
 
 ```bash
