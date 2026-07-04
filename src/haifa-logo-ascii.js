@@ -1,7 +1,7 @@
 const RAMP = " .,:;irsXA253hMHGS#9B&@";
 const COLUMNS = 132;
 const ROWS = 48;
-const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=25", import.meta.url);
+const DEFAULT_DATA_URL = new URL("../data/haifa-logo-points.json?v=26", import.meta.url);
 
 const template = document.createElement("template");
 template.innerHTML = `

@@ -7,7 +7,7 @@ The project currently includes two logo previews:
 - University of Haifa - old logo
 - University of Haifa - new logo
 
-It also includes a small point-cloud editor/viewer so it allow to inspect, paint, erase, and export the JSON point data used by the previews.
+It also includes a small point-cloud editor/viewer so I can inspect, paint, erase, and export the JSON point data used by the previews.
 
 ## How To Run
 
@@ -47,10 +47,10 @@ This is the editor/viewer page. I use it to load a logo point-cloud JSON file, v
 
 The point-cloud editor is a browser tool for editing the JSON data files that already live in the repo folder.
 
-When open `point-cloud-editor.html`, the **Logo** dropdown loads one of the existing point-cloud files:
+When I open `point-cloud-editor.html`, the **Logo** dropdown loads one of the existing point-cloud files from the `data/` folder:
 
-- `haifa-logo-points.json` for the University of Haifa - old logo
-- `second-logo-points.json` for the University of Haifa - new logo
+- `data/haifa-logo-points.json` for the University of Haifa - old logo
+- `data/second-logo-points.json` for the University of Haifa - new logo
 
 The editor loads those files with `fetch()`, draws the points on the canvas, and lets me inspect the logo as either raw cloud points or an ASCII-style render.
 
@@ -68,14 +68,34 @@ The main controls are:
 
 The editor does not automatically overwrite files in the repository. After exporting, manually replace the matching JSON file in the repo folder with the downloaded file:
 
-- replace `haifa-logo-points.json` if edited the old logo
-- replace `second-logo-points.json` if edited the new logo
+- replace `data/haifa-logo-points.json` if I edited the old logo
+- replace `data/second-logo-points.json` if I edited the new logo
 
-After replacing the file, we can refresh `index.html` through the local server to preview the updated ASCII logo.
+After replacing the file, I can refresh `index.html` through the local server to preview the updated ASCII logo.
 
 ## What Each File Does
 
-`haifa-logo-ascii.js`
+The repo is organized like this:
+
+```text
+haifa-logo-ascii-3d/
+|-- index.html
+|-- point-cloud-editor.html
+|-- README.md
+|-- src/
+|   |-- haifa-logo-ascii.js
+|   `-- point-cloud-editor.js
+|-- styles/
+|   `-- point-cloud-editor.css
+|-- data/
+|   |-- haifa-logo-points.json
+|   `-- second-logo-points.json
+`-- assets/
+    |-- logo-preview.gif
+    `-- cloud-points-editor.png
+```
+
+`src/haifa-logo-ascii.js`
 
 This is the main renderer. It defines the custom HTML element:
 
@@ -85,11 +105,11 @@ This is the main renderer. It defines the custom HTML element:
 
 It loads point data, adds shallow depth, spins the points around the Y axis, projects them into a 2D ASCII grid, colors the characters, and writes the final result into a `<pre>` element.
 
-`haifa-logo-points.json`
+`data/haifa-logo-points.json`
 
 This contains the point-cloud data for the University of Haifa - old logo.
 
-`second-logo-points.json`
+`data/second-logo-points.json`
 
 This contains the point-cloud data for the University of Haifa - new logo.
 
@@ -104,11 +124,11 @@ Where:
 - `x` and `y` are the 2D point position
 - `r`, `g`, and `b` are the point color
 
-`point-cloud-editor.js`
+`src/point-cloud-editor.js`
 
 This powers the editor. It loads JSON point files, draws them on a canvas, lets me add/remove points, and exports updated JSON.
 
-`point-cloud-editor.css`
+`styles/point-cloud-editor.css`
 
 This styles the editor page.
 

@@ -45,6 +45,10 @@ function setStatus(message) {
   countOutput.textContent = points.length.toLocaleString();
 }
 
+function filenameFromPath(value) {
+  return value.split("?")[0].split("/").pop() || "points.json";
+}
+
 function fitTransform() {
   const padding = 48 * Math.min(devicePixelRatio || 1, 2);
   const xExtent = 4.45;
@@ -154,7 +158,7 @@ async function loadLogo() {
     const response = await fetch(logoSelect.value);
     if (!response.ok) throw new Error(`Request failed (${response.status})`);
     points = await response.json();
-    activeFilename = logoSelect.value.split("?")[0];
+    activeFilename = filenameFromPath(logoSelect.value);
     originalPoints = clonePoints(points);
     undoStack = [];
     redoStack = [];
