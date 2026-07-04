@@ -4,8 +4,8 @@ I made this as a small university computer graphics project. The idea is to take
 
 The project currently includes two logo previews:
 
-- University of Haifa logo
-- A second geometric logo
+- University of Haifa - old logo
+- University of Haifa - new logo
 
 It also includes a small point-cloud editor/viewer so I can inspect, paint, erase, and export the JSON point data used by the previews.
 
@@ -25,12 +25,6 @@ Then open:
 
 ```text
 http://127.0.0.1:8000/index.html
-```
-
-If I want to test it from my phone, my phone needs to be on the same Wi-Fi as my computer. Then I open the computer's local network IP, for example:
-
-```text
-http://192.168.1.160:8000/index.html
 ```
 
 ## What Each Page Does
@@ -57,11 +51,11 @@ It loads point data, adds shallow depth, spins the points around the Y axis, pro
 
 `haifa-logo-points.json`
 
-This contains the point-cloud data for the University of Haifa logo.
+This contains the point-cloud data for the University of Haifa - old logo.
 
 `second-logo-points.json`
 
-This contains the point-cloud data for the second geometric logo.
+This contains the point-cloud data for the University of Haifa - new logo.
 
 Each point uses this format:
 
