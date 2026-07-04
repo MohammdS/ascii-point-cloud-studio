@@ -1,7 +1,7 @@
 const RAMP = " .,:;irsXA253hMHGS#9B&@";
 const COLUMNS = 132;
 const ROWS = 48;
-const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=26", import.meta.url);
+const DEFAULT_DATA_URL = new URL("./haifa-logo-points.json?v=25", import.meta.url);
 
 const template = document.createElement("template");
 template.innerHTML = `
@@ -215,30 +215,11 @@ class HaifaLogoAscii extends HTMLElement {
     const sinY = Math.sin(angleY);
     const scale = Math.min(COLUMNS / 10.8, ROWS / 5.6);
 
-    const projected = [];
-    let minX = Infinity;
-    let maxX = -Infinity;
-    let minY = Infinity;
-    let maxY = -Infinity;
-
     for (const [x, y, z, r, g, b] of this.points) {
       const x2 = x * cosY + z * sinY;
       const z2 = -x * sinY + z * cosY;
       const sx = Math.trunc(COLUMNS / 2 + x2 * scale * 1.18);
       const sy = Math.trunc(ROWS / 2 - y * scale * 0.92);
-      projected.push([sx, sy, z, z2, r, g, b]);
-      minX = Math.min(minX, sx);
-      maxX = Math.max(maxX, sx);
-      minY = Math.min(minY, sy);
-      maxY = Math.max(maxY, sy);
-    }
-
-    const offsetX = Number.isFinite(minX) ? Math.round((COLUMNS - 1 - minX - maxX) / 2) : 0;
-    const offsetY = Number.isFinite(minY) ? Math.round((ROWS - 1 - minY - maxY) / 2) : 0;
-
-    for (const [rawX, rawY, z, z2, r, g, b] of projected) {
-      const sx = rawX + offsetX;
-      const sy = rawY + offsetY;
       if (sx < 0 || sx >= COLUMNS || sy < 0 || sy >= ROWS) continue;
 
       const index = sy * COLUMNS + sx;
