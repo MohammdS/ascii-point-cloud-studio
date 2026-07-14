@@ -42,7 +42,7 @@ Import the module and provide a JSON source:
   src="./examples/university-of-haifa-old.json"
   label="Animated ASCII point cloud"
   speed="1"
-  depth="0.11"
+  depth="0.08"
   fps="18"
   columns="132"
   rows="48"
@@ -56,7 +56,7 @@ Import the module and provide a JSON source:
 | `src` | Required | URL of the point-cloud JSON file |
 | `label` | Generic label | Accessible description for the rendered artwork |
 | `speed` | `1` | Rotation speed and direction; negative values reverse it |
-| `depth` | `0.11` | Shallow extrusion depth between `0.02` and `0.5` |
+| `depth` | `0.08` | Shallow extrusion depth between `0.02` and `0.5` |
 | `fps` | `18` | Animation rate between 1 and 30 FPS |
 | `columns` | `132` | ASCII grid width between 30 and 240 |
 | `rows` | `48` | ASCII grid height between 16 and 100 |
