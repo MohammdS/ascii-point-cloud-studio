@@ -90,12 +90,12 @@ function preparePoints(rawPoints, depth) {
   );
   const expanded = [];
 
-  for (const [x, y, r, g, b] of normalized) {
+  for (const [index, [x, y, r, g, b]] of normalized.entries()) {
     const qx = Math.round(x / cellSize);
     const qy = Math.round(y / cellSize);
     const surface = depth * (0.12 * Math.sin(x * 3.4) + 0.06 * Math.cos(y * 4));
     expanded.push([x, y, surface + depth, r, g, b]);
-    expanded.push([x, y, surface - depth, r, g, b]);
+    if (index % 3 === 0) expanded.push([x, y, surface - depth, r, g, b]);
 
     const isRim =
       !occupied.has(`${qx - 1},${qy}`) ||
@@ -104,7 +104,7 @@ function preparePoints(rawPoints, depth) {
       !occupied.has(`${qx},${qy + 1}`);
 
     if (isRim) {
-      for (const sideDepth of [-0.6, -0.2, 0.2, 0.6]) {
+      for (const sideDepth of [-0.6, 0, 0.6]) {
         expanded.push([x, y, surface + depth * sideDepth, r, g, b]);
       }
     }
