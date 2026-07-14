@@ -77,16 +77,37 @@ function preparePoints(rawPoints, depth) {
   const centerX = (minX + maxX) / 2;
   const centerY = (minY + maxY) / 2;
   const inputScale = Math.max(maxX - minX, maxY - minY, 0.0001) / 2;
+  const normalized = points.map(([rawX, rawY, r, g, b]) => [
+    (rawX - centerX) / inputScale,
+    (rawY - centerY) / inputScale,
+    r,
+    g,
+    b,
+  ]);
+  const cellSize = 0.04;
+  const occupied = new Set(
+    normalized.map(([x, y]) => `${Math.round(x / cellSize)},${Math.round(y / cellSize)}`),
+  );
   const expanded = [];
 
-  for (const [index, point] of points.entries()) {
-    const [rawX, rawY, r, g, b] = point;
-    const x = (rawX - centerX) / inputScale;
-    const y = (rawY - centerY) / inputScale;
-    const surface = depth * (0.2 * Math.sin(x * 3.4) + 0.1 * Math.cos(y * 4));
-
+  for (const [x, y, r, g, b] of normalized) {
+    const qx = Math.round(x / cellSize);
+    const qy = Math.round(y / cellSize);
+    const surface = depth * (0.12 * Math.sin(x * 3.4) + 0.06 * Math.cos(y * 4));
     expanded.push([x, y, surface + depth, r, g, b]);
-    if (index % 3 === 0) expanded.push([x, y, surface - depth, r, g, b]);
+    expanded.push([x, y, surface - depth, r, g, b]);
+
+    const isRim =
+      !occupied.has(`${qx - 1},${qy}`) ||
+      !occupied.has(`${qx + 1},${qy}`) ||
+      !occupied.has(`${qx},${qy - 1}`) ||
+      !occupied.has(`${qx},${qy + 1}`);
+
+    if (isRim) {
+      for (const sideDepth of [-0.6, -0.2, 0.2, 0.6]) {
+        expanded.push([x, y, surface + depth * sideDepth, r, g, b]);
+      }
+    }
   }
 
   return {
@@ -181,7 +202,7 @@ class AsciiPointCloud extends HTMLElement {
     }
 
     const url = new URL(source, document.baseURI);
-    const depth = clamp(Number(this.getAttribute("depth")) || 0.24, 0.02, 0.8);
+    const depth = clamp(Number(this.getAttribute("depth")) || 0.11, 0.02, 0.5);
     const requestId = Symbol();
     this.activeRequest = requestId;
     this.pointSet = null;
