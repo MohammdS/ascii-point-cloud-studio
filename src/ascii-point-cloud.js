@@ -202,7 +202,7 @@ class AsciiPointCloud extends HTMLElement {
     }
 
     const url = new URL(source, document.baseURI);
-    const depth = clamp(Number(this.getAttribute("depth")) || 0.08, 0.02, 0.5);
+    const depth = clamp(Number(this.getAttribute("depth")) || 0.05, 0.02, 0.5);
     const requestId = Symbol();
     this.activeRequest = requestId;
     this.pointSet = null;
