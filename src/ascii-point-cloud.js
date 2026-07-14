@@ -235,7 +235,8 @@ class AsciiPointCloud extends HTMLElement {
     const zBuffer = new Float32Array(count);
     zBuffer.fill(-1e9);
 
-    const speedValue = Number(this.getAttribute("speed"));
+    const speedAttribute = this.getAttribute("speed");
+    const speedValue = speedAttribute === null || speedAttribute.trim() === "" ? 1 : Number(speedAttribute);
     const speed = Number.isFinite(speedValue) ? speedValue : 1;
     if (!this.hasAttribute("paused") && !this.motionReduced) this.frameIndex += speed < 0 ? -1 : 1;
     const angleY = this.frameIndex * 0.052 * Math.abs(speed);
